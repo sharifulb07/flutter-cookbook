@@ -1,21 +1,21 @@
 
-##Flutter Cookbook
+## Flutter Cookbook
 Welcome to the Flutter Cookbook section of this repository! This section is designed to provide you with practical, concise examples of how to achieve common tasks and solve specific problems using Flutter, Google's UI toolkit for building natively compiled applications for mobile, web, and desktop from a single codebase.
 
 Contents
-#Navigation
+# Navigation
 
 How to navigate to a new screen
 How to pass arguments to a named route
 How to return data from a screen
 
-#UI Elements
+# UI Elements
 
 How to create a button with a gradient background
 How to add a border to a widget
 How to build a form with validation
 
-#State Management
+# State Management
 
 How to manage state using Provider package
 How to implement BLoC pattern with Flutter
@@ -36,7 +36,7 @@ Each example in the Flutter Cookbook is contained within its own directory. Insi
 
 Feel free to explore, learn, and adapt these examples to suit your own Flutter projects. If you have any suggestions for new recipes or improvements to existing ones, please open an issue or submit a pull request. Your contributions are highly appreciated!
 
-Contributing
+# Contributing
 Contributions to the Flutter Cookbook are welcome! If you have a useful Flutter recipe that you would like to share, or if you spot an error in an existing recipe, please follow these steps:
 
 Fork this repository and clone it to your local machine.
