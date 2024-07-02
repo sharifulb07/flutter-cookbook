@@ -1,37 +1,42 @@
-import 'dart:async';
-import 'dart:io';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  final firstCamera = cameras.first;
-  runApp(MaterialApp(
-    theme: ThemeData.dark(),
-    home: TakePictureScreen(camera: firstCamera),
-  ));
+void main() {
+  runApp(const VideoPlayerApp());
 }
 
-class TakePictureScreen extends StatefulWidget {
-  final CameraDescription camera;
-
-  const TakePictureScreen({super.key, required this.camera});
+class VideoPlayerApp extends StatelessWidget {
+  const VideoPlayerApp({super.key});
 
   @override
-  State<TakePictureScreen> createState() => _TakePictureScreenState();
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: VideoPlayerScreen(),
+    );
+  }
 }
 
-class _TakePictureScreenState extends State<TakePictureScreen> {
-  late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
+class VideoPlayerScreen extends StatefulWidget {
+  const VideoPlayerScreen({super.key});
+
+  @override
+  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
+}
+
+class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {
-    _controller = CameraController(widget.camera, ResolutionPreset.medium);
-    _initializeControllerFuture = _controller.initialize();
-
     super.initState();
+    _controller = VideoPlayerController.networkUrl(
+        Uri.parse('https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'));
+
+
+
+    _initializeVideoPlayerFuture = _controller.initialize();
+    _controller.setLooping(true);
   }
 
   @override
@@ -44,52 +49,38 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Take a Picture'),
+        title: const Text("Video Player App"),
       ),
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
+      body: FutureBuilder(
+        future: _initializeVideoPlayerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 15),
+              child: AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: VideoPlayer(_controller),
+              ),
             );
+          } else {
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            await _initializeControllerFuture;
-            final image = await _controller.takePicture();
-            if (!context.mounted) return;
-
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    DisplayPictureScreen(imagePath: image.path)));
-          } catch (e) {
-            print(e);
-          }
+        onPressed: () {
+          setState(() {
+            if (_controller.value.isPlaying) {
+              _controller.pause();
+            } else {
+              _controller.play();
+            }
+          });
         },
-        child: const Icon(Icons.camera_alt),
+        child: _controller.value.isPlaying
+            ? const Icon(Icons.pause)
+            : const Icon(Icons.play_arrow),
       ),
-    );
-  }
-}
-
-class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
-
-  const DisplayPictureScreen({super.key, required this.imagePath});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Display Pictures'),
-      ),
-      body: Image.file(File(imagePath)),
     );
   }
 }
